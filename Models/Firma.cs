@@ -3,7 +3,7 @@ namespace TaskForge.Models
     public class Firma
     {
         public int FirmaId { get; set; }
-        public string Nazev { get; set; } //= string.Empty;
+        public string Nazev { get; set; } = string.Empty; //warning musí definované, proto Empty
         public string? Popis { get; set; }
         public string? Adresa { get; set; }
         public string? Telefon { get; set; }
