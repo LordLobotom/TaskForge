@@ -13,6 +13,7 @@ namespace TaskForge.Models
         public DateTime? DatumUzavreni { get; set; }
         public int VlozilUzivatelId { get; set; }
         public Uzivatel VlozilUzivatel { get; set; } = null!;
+        public DateTime VlozenDatum { get; set; } = DateTime.Now;
 
 
         public Firma? Firma { get; set; }
