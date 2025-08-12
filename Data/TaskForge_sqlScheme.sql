@@ -20,19 +20,20 @@ CREATE TABLE Ukol (
     Popis TEXT NOT NULL,
     Detail TEXT,
     DatumZadani DATETIME NOT NULL,
-    ZadavatelId INTEGER NOT NULL,
+    ZadatelId INTEGER NOT NULL,
+    ResitelID INTEGER NOT NULL,
     Priorita TEXT NOT NULL,
     Stav TEXT NOT NULL,
     TerminVyreseni DATETIME,
     DatumUzavreni DATETIME,
     VlozilUzivatelId INTEGER NOT NULL,
-    VlozenDatum DATETIME NOT NULL,
     FOREIGN KEY (FirmaId) REFERENCES Firma(FirmaId),
-    FOREIGN KEY (ZadavatelId) REFERENCES Uzivatel(UzivatelId),
+    FOREIGN KEY (ZadatelId) REFERENCES Uzivatel(UzivatelId),
+    FOREIGN KEY (ResitelID) REFERENCES Uzivatel(UzivatelId),
     FOREIGN KEY (VlozilUzivatelId) REFERENCES Uzivatel(UzivatelId)
 );
 
-CREATE TABLE Resitele (
+CREATE TABLE Resitel (
     ResitelId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
     UkolId INTEGER NOT NULL,
     UzivatelId INTEGER NOT NULL,
@@ -40,7 +41,7 @@ CREATE TABLE Resitele (
     FOREIGN KEY (UzivatelId) REFERENCES Uzivatel(UzivatelId)
 );
 
-CREATE TABLE Zadavatele (
+CREATE TABLE Zadatel (
     ZadavatelId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
     UkolId INTEGER NOT NULL,
     UzivatelId INTEGER NOT NULL,
