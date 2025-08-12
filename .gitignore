@@ -1,0 +1,35 @@
+# Build výstupy
+bin/
+obj/
+out/
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+
+# User files
+*.user
+*.suo
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+logs/
+
+# NuGet
+packages/
+
+# Temp files
+*.tmp
+temp/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
