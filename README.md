@@ -18,16 +18,11 @@ Jednoduchý systém pro evidenci úkolů. Webová aplikace pro firmy na správu 
 
 ### Instalace
 ```bash
-# Vytvoř projekt
-dotnet new blazorserver -n TaskForge
+# Naklonuj repo
+git clone https://github.com/user/TaskForge.git
 cd TaskForge
 
-# Přidej balíčky
-dotnet add package Microsoft.EntityFrameworkCore.Sqlite
-dotnet add package Microsoft.EntityFrameworkCore.Tools
-
 # Nastav databázi
-dotnet ef migrations add InitialCreate
 dotnet ef database update
 
 # Spusť aplikaci
