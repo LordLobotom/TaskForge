@@ -13,7 +13,7 @@ Jednoduchý systém pro evidenci úkolů. Webová aplikace pro firmy na správu 
 ## Spuštění
 
 ### Požadavky
-- .NET 8.0 SDK
+- .NET 9.0 SDK
 - VS Code
 
 ### Instalace
