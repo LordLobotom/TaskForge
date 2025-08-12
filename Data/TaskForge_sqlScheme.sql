@@ -1,0 +1,87 @@
+CREATE TABLE Firma (
+    FirmaId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
+    Nazev TEXT NOT NULL, --NVARCHAR(255) NOT NULL
+    Popis TEXT, --NVARCHAR(MAX)
+    Adresa TEXT, --NVARCHAR(500)
+    Telefon TEXT
+);
+
+CREATE TABLE Uzivatel (
+    UzivatelId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
+    Jmeno TEXT NOT NULL,
+    FirmaId INTEGER NOT NULL,
+    Email TEXT,
+    FOREIGN KEY (FirmaId) REFERENCES Firma(FirmaId)
+);
+
+CREATE TABLE Ukol (
+    UkolId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
+    FirmaId INTEGER,
+    Popis TEXT NOT NULL,
+    Detail TEXT,
+    DatumZadani DATETIME NOT NULL,
+    ZadavatelId INTEGER NOT NULL,
+    Priorita TEXT NOT NULL,
+    Stav TEXT NOT NULL,
+    TerminVyreseni DATETIME,
+    DatumUzavreni DATETIME,
+    VlozilUzivatelId INTEGER NOT NULL,
+    VlozenDatum DATETIME NOT NULL,
+    FOREIGN KEY (FirmaId) REFERENCES Firma(FirmaId),
+    FOREIGN KEY (ZadavatelId) REFERENCES Uzivatel(UzivatelId),
+    FOREIGN KEY (VlozilUzivatelId) REFERENCES Uzivatel(UzivatelId)
+);
+
+CREATE TABLE Resitele (
+    ResitelId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
+    UkolId INTEGER NOT NULL,
+    UzivatelId INTEGER NOT NULL,
+    FOREIGN KEY (UkolId) REFERENCES Ukol(UkolId),
+    FOREIGN KEY (UzivatelId) REFERENCES Uzivatel(UzivatelId)
+);
+
+CREATE TABLE Zadavatele (
+    ZadavatelId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
+    UkolId INTEGER NOT NULL,
+    UzivatelId INTEGER NOT NULL,
+    FOREIGN KEY (UkolId) REFERENCES Ukol(UkolId),
+    FOREIGN KEY (UzivatelId) REFERENCES Uzivatel(UzivatelId)
+);
+
+CREATE TABLE ChecklistPolozka (
+    PolozkaId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
+    UkolId INTEGER NOT NULL,
+    Nazev TEXT NOT NULL,
+    Poznamka TEXT,
+    Stav INTEGER NOT NULL DEFAULT 0,
+    Termin DATETIME,
+    DatumSplneni DATETIME,
+    Priorita INTEGER NOT NULL DEFAULT 0,
+    VlozilUzivatelId INTEGER NOT NULL,
+    VlozenDatum DATETIME NOT NULL,
+    FOREIGN KEY (UkolId) REFERENCES Ukol(UkolId),
+    FOREIGN KEY (VlozilUzivatelId) REFERENCES Uzivatel(UzivatelId)
+);
+
+CREATE TABLE Priloha (
+    PrilohaId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
+    UkolId INTEGER NOT NULL,
+    NazevSouboru TEXT NOT NULL,
+    Typ TEXT,
+    Velikost INTEGER,
+    Cesta TEXT NOT NULL,
+    VlozilUzivatelId INTEGER NOT NULL,
+    VlozenDatum DATETIME NOT NULL,
+    FOREIGN KEY (UkolId) REFERENCES Ukol(UkolId),
+    FOREIGN KEY (VlozilUzivatelId) REFERENCES Uzivatel(UzivatelId)
+);
+
+CREATE TABLE ChatZprava (
+    ZpravaId INTEGER PRIMARY KEY AUTOINCREMENT, --INT IDENTITY(1,1) PRIMARY KEY
+    UkolId INTEGER NOT NULL,
+    UzivatelId INTEGER NOT NULL,
+    Datum DATETIME NOT NULL,
+    Text TEXT NOT NULL,
+    FOREIGN KEY (UkolId) REFERENCES Ukol(UkolId),
+    FOREIGN KEY (UzivatelId) REFERENCES Uzivatel(UzivatelId)
+);
