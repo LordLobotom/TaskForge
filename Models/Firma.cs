@@ -10,6 +10,5 @@ namespace TaskForge.Models
 
         public List<Uzivatel> Uzivatele { get; set; } = new(); // List of users associated with the company
         public List<Ukol> Ukoly { get; set; } = new(); // List of tasks associated with the company
-        public List<Projekt> Projekty { get; set; } = new(); // List of projects associated with the company
     }
 }

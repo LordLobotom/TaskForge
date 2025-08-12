@@ -19,8 +19,8 @@ namespace TaskForge.Models
         public Uzivatel VlozilUzivatel { get; set; }// = null!;
 
 
-        public List<Resitele> Resitele { get; set; } = new();
-        public List<Zadavatele> Zadavatele { get; set; } = new();
+        public List<Resitel> Resitele { get; set; } = new();
+        public List<Zadavatel> Zadavatele { get; set; } = new();
         public List<ChecklistPolozka> ChecklistPolozky { get; set; } = new();
         public List<Priloha> Prilohy { get; set; } = new();
         public List<ChatZprava> ChatZpravy { get; set; } = new();

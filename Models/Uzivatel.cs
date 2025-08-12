@@ -9,7 +9,7 @@ namespace TaskForge.Models
         public Firma Firma { get; set; }// = null!;
         
         public List<Ukol> ZadaneUkoly { get; set; } = new();
-        public List<Resitele> ReseneUkoly { get; set; } = new();
+        public List<Resitel> ReseneUkoly { get; set; } = new();
         public List<ChecklistPolozka> ChecklistPolozky { get; set; } = new();
         public List<Priloha> Prilohy { get; set; } = new();
         public List<ChatZprava> ChatZpravy { get; set; } = new();
