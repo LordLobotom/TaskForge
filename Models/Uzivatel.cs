@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TaskForge.Models
 {
     public class Uzivatel
@@ -16,7 +18,10 @@ namespace TaskForge.Models
 
         public List<Resitel> Resitele { get; set; } = new(); // Vazba na řešené úkoly
         public List<Zadatel> Zadatele { get; set; } = new(); // Vazba na zadané úkoly
+        
+        [NotMapped]
         public IEnumerable<Ukol> ZadaneUkoly => Zadatele.Select(z => z.Ukol);
+        [NotMapped]
         public IEnumerable<Ukol> ReseneUkoly => Resitele.Select(r => r.Ukol);
     }
 }
