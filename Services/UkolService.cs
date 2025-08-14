@@ -4,10 +4,18 @@ using TaskForge.Data;
 
 namespace TaskForge.Services
 {
-    /// <summary>
-    /// Služba pro správu úkolů
-    /// </summary>        
-    public class UkolService
+    public interface IUkolService
+    {
+        Task<List<Ukol>> GetAllUkolyAsync();
+        Task<Ukol?> GetUkolByIdAsync(int id);
+        //Task<Ukol> CreateUkolAsync(Ukol ukol);
+        //Task<Ukol> UpdateUkolAsync(Ukol ukol);
+        //Task DeleteUkolAsync(int id);
+        //Task<List<Ukol>> GetUkolyByStavAsync(string stav);
+        //Task<List<Ukol>> GetUkolyByPrioritaAsync(string priorita);
+    }
+      
+    public class UkolService : IUkolService
     {
         private readonly TaskForgeDbContext _context;
         

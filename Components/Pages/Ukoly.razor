@@ -10,25 +10,25 @@
 
 @* Tlačítka pro filtrování a akce *@
 <div class="mb-3 d-flex gap-2 flex-wrap">
-    <button class="btn btn-primary" @onclick="() => LoadUkolyAsync()">
+    <button class="btn btn-primary" @onclick="LoadUkolyAsync">
         <i class="bi bi-arrow-clockwise"></i> Obnovit
     </button>
     
     <div class="btn-group" role="group">
         <button class="btn @(currentFilter == "vse" ? "btn-secondary" : "btn-outline-secondary")" 
-                @onclick="() => FilterByStatus(\"vse\")">
+                @onclick="FilterVse">
             Vše (@allUkoly.Count)
         </button>
         <button class="btn @(currentFilter == "novy" ? "btn-info" : "btn-outline-info")" 
-                @onclick="() => FilterByStatus(\"novy\")">
+                @onclick="FilterNovy">
             Nové (@allUkoly.Count(u => u.Stav == "Nový"))
         </button>
         <button class="btn @(currentFilter == "reseni" ? "btn-warning" : "btn-outline-warning")" 
-                @onclick="() => FilterByStatus(\"reseni\")">
+                @onclick="FilterReseni">
             V řešení (@allUkoly.Count(u => u.Stav == "V řešení"))
         </button>
         <button class="btn @(currentFilter == "hotovy" ? "btn-success" : "btn-outline-success")" 
-                @onclick="() => FilterByStatus(\"hotovy\")">
+                @onclick="FilterHotovy">
             Hotové (@allUkoly.Count(u => u.Stav == "Hotový"))
         </button>
     </div>
@@ -165,11 +165,11 @@ else
                         <td>
                             <div class="btn-group-vertical btn-group-sm" role="group">
                                 <button class="btn btn-outline-primary btn-sm" 
-                                        @onclick="() => ViewDetail(ukol.UkolId)">
+                                        @onclick="@(() => ViewDetail(ukol.UkolId))">
                                     <i class="bi bi-eye"></i>
                                 </button>
                                 <button class="btn btn-outline-secondary btn-sm" 
-                                        @onclick="() => EditUkol(ukol.UkolId)">
+                                        @onclick="@(() => EditUkol(ukol.UkolId))">
                                     <i class="bi bi-pencil"></i>
                                 </button>
                             </div>
@@ -214,6 +214,12 @@ else
             isLoading = false;
         }
     }
+
+    // Metody pro filtrování - každá pro jeden stav
+    private void FilterVse() => FilterByStatus("vse");
+    private void FilterNovy() => FilterByStatus("novy");
+    private void FilterReseni() => FilterByStatus("reseni");
+    private void FilterHotovy() => FilterByStatus("hotovy");
 
     // Filtruje úkoly podle stavu
     private void FilterByStatus(string filter)

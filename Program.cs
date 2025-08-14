@@ -1,4 +1,4 @@
-using Microsoft.entityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TaskForge.Data;
 using TaskForge.Services;
 using TaskForge.Components;
