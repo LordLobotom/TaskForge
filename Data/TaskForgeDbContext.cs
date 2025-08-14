@@ -119,6 +119,7 @@ namespace TaskForge.Data
                     .HasForeignKey(p => p.UkolId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
             //ChatZprava
             modelBuilder.Entity<ChatZprava>(entity =>
             {
@@ -126,7 +127,6 @@ namespace TaskForge.Data
                 entity.Property(c => c.Text).IsRequired();
                 entity.Property(c => c.Datum).IsRequired();
                 entity.Property(c => c.UzivatelId).IsRequired();
-                entity.Property(c => c.Uzivatel).IsRequired();
                 entity.HasOne(c => c.Ukol)
                     .WithMany(u => u.ChatZpravy)
                     .HasForeignKey(c => c.UkolId)
@@ -136,13 +136,14 @@ namespace TaskForge.Data
                     .HasForeignKey(c => c.UzivatelId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+
             //ChecklistPolozka
             modelBuilder.Entity<ChecklistPolozka>(entity =>
             {
                 entity.HasKey(cp => cp.PolozkaId);
                 entity.Property(cp => cp.UkolId).IsRequired();
                 entity.Property(cp => cp.Nazev).IsRequired();
-                entity.Property(cp => cp.Popis).IsRequired();
+                entity.Property(cp => cp.Popis);
                 entity.Property(cp => cp.Stav).IsRequired();
                 entity.Property(cp => cp.Termin);
                 entity.Property(cp => cp.DatumSplneni);
