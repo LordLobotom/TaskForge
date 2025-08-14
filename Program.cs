@@ -23,6 +23,9 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<TaskForgeDbContext>();
     context.Database.EnsureCreated();
+
+    // Inicializace seed dat
+    SeedData.Initialize(context);
 }
 
 // Configure the HTTP request pipeline.
