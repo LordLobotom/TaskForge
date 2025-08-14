@@ -1,0 +1,293 @@
+@page "/ukoly"
+@using TaskForge.Models
+@using TaskForge.Services
+@inject IUkolService UkolService
+@rendermode InteractiveServer
+
+<PageTitle>Úkoly - TaskForge</PageTitle>
+
+<h1>Přehled úkolů</h1>
+
+@* Tlačítka pro filtrování a akce *@
+<div class="mb-3 d-flex gap-2 flex-wrap">
+    <button class="btn btn-primary" @onclick="() => LoadUkolyAsync()">
+        <i class="bi bi-arrow-clockwise"></i> Obnovit
+    </button>
+    
+    <div class="btn-group" role="group">
+        <button class="btn @(currentFilter == "vse" ? "btn-secondary" : "btn-outline-secondary")" 
+                @onclick="() => FilterByStatus(\"vse\")">
+            Vše (@allUkoly.Count)
+        </button>
+        <button class="btn @(currentFilter == "novy" ? "btn-info" : "btn-outline-info")" 
+                @onclick="() => FilterByStatus(\"novy\")">
+            Nové (@allUkoly.Count(u => u.Stav == "Nový"))
+        </button>
+        <button class="btn @(currentFilter == "reseni" ? "btn-warning" : "btn-outline-warning")" 
+                @onclick="() => FilterByStatus(\"reseni\")">
+            V řešení (@allUkoly.Count(u => u.Stav == "V řešení"))
+        </button>
+        <button class="btn @(currentFilter == "hotovy" ? "btn-success" : "btn-outline-success")" 
+                @onclick="() => FilterByStatus(\"hotovy\")">
+            Hotové (@allUkoly.Count(u => u.Stav == "Hotový"))
+        </button>
+    </div>
+</div>
+
+@* Zobrazení stavu načítání *@
+@if (isLoading)
+{
+    <div class="text-center p-4">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Načítání...</span>
+        </div>
+        <p class="mt-2">Načítám úkoly...</p>
+    </div>
+}
+else if (filteredUkoly == null || !filteredUkoly.Any())
+{
+    <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">Žádné úkoly</h4>
+        <p>Momentálně nejsou k dispozici žádné úkoly pro zobrazení.</p>
+    </div>
+}
+else
+{
+    @* Tabulka s úkoly *@
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Popis</th>
+                    <th>Priorita</th>
+                    <th>Stav</th>
+                    <th>Firma</th>
+                    <th>Zadavatelé</th>
+                    <th>Řešitelé</th>
+                    <th>Datum zadání</th>
+                    <th>Termín</th>
+                    <th>Akce</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ukol in filteredUkoly)
+                {
+                    <tr class="@GetRowClass(ukol.Stav)">
+                        <td>
+                            <span class="badge bg-secondary">#@ukol.UkolId</span>
+                        </td>
+                        <td>
+                            <strong>@ukol.Popis</strong>
+                            @if (!string.IsNullOrEmpty(ukol.Detail))
+                            {
+                                <br><small class="text-muted">@GetShortDetail(ukol.Detail)</small>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge @GetPriorityBadgeClass(ukol.Priorita)">
+                                @ukol.Priorita
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge @GetStatusBadgeClass(ukol.Stav)">
+                                @ukol.Stav
+                            </span>
+                        </td>
+                        <td>
+                            @if (ukol.Firma != null)
+                            {
+                                <small>@ukol.Firma.Nazev</small>
+                            }
+                            else
+                            {
+                                <small class="text-muted">-</small>
+                            }
+                        </td>
+                        <td>
+                            @if (ukol.Zadatele.Any())
+                            {
+                                @foreach (var zadatel in ukol.Zadatele.Take(2))
+                                {
+                                    <small class="d-block">@zadatel.Uzivatel.Jmeno</small>
+                                }
+                                @if (ukol.Zadatele.Count > 2)
+                                {
+                                    <small class="text-muted">+@(ukol.Zadatele.Count - 2) dalších</small>
+                                }
+                            }
+                            else
+                            {
+                                <small class="text-muted">-</small>
+                            }
+                        </td>
+                        <td>
+                            @if (ukol.Resitele.Any())
+                            {
+                                @foreach (var resitel in ukol.Resitele.Take(2))
+                                {
+                                    <small class="d-block">@resitel.Uzivatel.Jmeno</small>
+                                }
+                                @if (ukol.Resitele.Count > 2)
+                                {
+                                    <small class="text-muted">+@(ukol.Resitele.Count - 2) dalších</small>
+                                }
+                            }
+                            else
+                            {
+                                <small class="text-muted">Nepřiřazeno</small>
+                            }
+                        </td>
+                        <td>
+                            <small>@ukol.DatumZadani.ToString("dd.MM.yyyy")</small>
+                        </td>
+                        <td>
+                            @if (ukol.TerminVyreseni.HasValue)
+                            {
+                                var daysToDeadline = (ukol.TerminVyreseni.Value.Date - DateTime.Today).Days;
+                                <small class="@GetDeadlineClass(daysToDeadline)">
+                                    @ukol.TerminVyreseni.Value.ToString("dd.MM.yyyy")
+                                    @if (daysToDeadline < 0)
+                                    {
+                                        <br><span class="text-danger">(po termínu)</span>
+                                    }
+                                    else if (daysToDeadline <= 3)
+                                    {
+                                        <br><span class="text-warning">(za @daysToDeadline dní)</span>
+                                    }
+                                </small>
+                            }
+                            else
+                            {
+                                <small class="text-muted">-</small>
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                <button class="btn btn-outline-primary btn-sm" 
+                                        @onclick="() => ViewDetail(ukol.UkolId)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" 
+                                        @onclick="() => EditUkol(ukol.UkolId)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    // Proměnné pro stav komponenty
+    private List<Ukol> allUkoly = new();         // Všechny úkoly z databáze
+    private List<Ukol> filteredUkoly = new();    // Filtrované úkoly pro zobrazení
+    private bool isLoading = true;               // Indikuje, zda se data načítají
+    private string currentFilter = "vse";        // Aktuálně aktivní filtr
+
+    // Lifecycle metoda - spustí se při načtení komponenty
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUkolyAsync();
+    }
+
+    // Načte všechny úkoly z databáze
+    private async Task LoadUkolyAsync()
+    {
+        isLoading = true;
+        try
+        {
+            allUkoly = await UkolService.GetAllUkolyAsync();
+            FilterByStatus(currentFilter); // Aplikuje aktuální filtr
+        }
+        catch (Exception ex)
+        {
+            // V produkční aplikaci byste logovali chybu
+            Console.WriteLine($"Chyba při načítání úkolů: {ex.Message}");
+            allUkoly = new List<Ukol>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Filtruje úkoly podle stavu
+    private void FilterByStatus(string filter)
+    {
+        currentFilter = filter;
+        
+        filteredUkoly = filter switch
+        {
+            "novy" => allUkoly.Where(u => u.Stav == "Nový").ToList(),
+            "reseni" => allUkoly.Where(u => u.Stav == "V řešení").ToList(),
+            "hotovy" => allUkoly.Where(u => u.Stav == "Hotový").ToList(),
+            _ => allUkoly.ToList() // "vse" nebo jakýkoliv jiný filtr
+        };
+    }
+
+    // Pomocné metody pro CSS třídy a styling
+    private string GetRowClass(string stav)
+    {
+        return stav switch
+        {
+            "Hotový" => "table-success",
+            "V řešení" => "table-warning",
+            "Nový" => "table-info",
+            _ => ""
+        };
+    }
+
+    private string GetStatusBadgeClass(string stav)
+    {
+        return stav switch
+        {
+            "Hotový" => "bg-success",
+            "V řešení" => "bg-warning text-dark",
+            "Nový" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetPriorityBadgeClass(string priorita)
+    {
+        return priorita switch
+        {
+            "Vysoká" => "bg-danger",
+            "Střední" => "bg-warning text-dark",
+            "Nízká" => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetDeadlineClass(int daysToDeadline)
+    {
+        if (daysToDeadline < 0) return "text-danger";
+        if (daysToDeadline <= 3) return "text-warning";
+        return "text-success";
+    }
+
+    // Zkrátí detail úkolu pro zobrazení v tabulce
+    private string GetShortDetail(string detail)
+    {
+        const int maxLength = 50;
+        if (detail.Length <= maxLength) return detail;
+        return detail.Substring(0, maxLength) + "...";
+    }
+
+    // Event handlery pro tlačítka (zatím jen placeholder funkce)
+    private void ViewDetail(int ukolId)
+    {
+        // TODO: Implementovat navigaci na detail úkolu
+        Console.WriteLine($"Zobrazit detail úkolu {ukolId}");
+    }
+
+    private void EditUkol(int ukolId)
+    {
+        // TODO: Implementovat editaci úkolu
+        Console.WriteLine($"Editovat úkol {ukolId}");
+    }
+}
