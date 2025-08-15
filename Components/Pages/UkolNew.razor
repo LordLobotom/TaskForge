@@ -3,6 +3,7 @@
 @using TaskForge.Services
 @inject IUkolService UkolService
 @rendermode InteractiveServer
+@inject NavigationManager Navigation
 
 <PageTitle>Úkoly - TaskForge</PageTitle>
 
@@ -12,6 +13,10 @@
 <div class="mb-3 d-flex gap-2 flex-wrap">
     <button class="btn btn-primary" @onclick="LoadUkolyAsync">
         <i class="bi bi-arrow-clockwise"></i> Obnovit
+    </button>
+
+    <button class="btn btn-primary" @onclick="GoToUkolNew">
+        <i class="bi bi-arrow-clockwise"></i> Nový úkol
     </button>
     
     <div class="btn-group" role="group">
@@ -295,5 +300,10 @@ else
     {
         // TODO: Implementovat editaci úkolu
         Console.WriteLine($"Editovat úkol {ukolId}");
+    }
+
+    void GoToUkolNew()
+    {
+        Navigation.NavigateTo("/UkolNew"); // cesta podle route v UkolNew.razor
     }
 }
