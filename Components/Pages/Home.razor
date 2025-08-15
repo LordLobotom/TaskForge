@@ -114,7 +114,10 @@ else
                             {
                                 @foreach (var zadatel in ukol.Zadatele.Take(2))
                                 {
-                                    <small class="d-block">@zadatel.Uzivatel.Jmeno</small>
+                                    @if (zadatel?.Uzivatel != null)
+                                    {
+                                        <small class="d-block">@zadatel.Uzivatel.Jmeno</small>
+                                    }
                                 }
                                 @if (ukol.Zadatele.Count > 2)
                                 {
@@ -131,7 +134,10 @@ else
                             {
                                 @foreach (var resitel in ukol.Resitele.Take(2))
                                 {
-                                    <small class="d-block">@resitel.Uzivatel.Jmeno</small>
+                                    @if (resitel?.Uzivatel != null)
+                                    {
+                                        <small class="d-block">@resitel.Uzivatel.Jmeno</small>
+                                    }
                                 }
                                 @if (ukol.Resitele.Count > 2)
                                 {
@@ -167,6 +173,7 @@ else
                                 <small class="text-muted">-</small>
                             }
                         </td>
+                        
                         <td>
                             <div class="btn-group-vertical btn-group-sm" role="group">
                                 <button class="btn btn-outline-primary btn-sm" 

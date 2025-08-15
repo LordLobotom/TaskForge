@@ -2,308 +2,420 @@
 @using TaskForge.Models
 @using TaskForge.Services
 @inject IUkolService UkolService
-@rendermode InteractiveServer
 @inject NavigationManager Navigation
+@rendermode InteractiveServer
 
-<PageTitle>Úkoly - TaskForge</PageTitle>
+<PageTitle>Nový úkol - TaskForge</PageTitle>
 
-<h1>Přehled úkolů</h1>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="bi bi-plus-circle"></i> Nový úkol
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="/" class="text-decoration-none">Úkoly</a>
+                        </li>
+                        <li class="breadcrumb-item active">Nový úkol</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
 
-@* Tlačítka pro filtrování a akce *@
-<div class="mb-3 d-flex gap-2 flex-wrap">
-    <button class="btn btn-primary" @onclick="LoadUkolyAsync">
-        <i class="bi bi-arrow-clockwise"></i> Obnovit
-    </button>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Chyba:</strong> @errorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-    <button class="btn btn-primary" @onclick="GoToUkolNew">
-        <i class="bi bi-arrow-clockwise"></i> Nový úkol
-    </button>
-    
-    <div class="btn-group" role="group">
-        <button class="btn @(currentFilter == "vse" ? "btn-secondary" : "btn-outline-secondary")" 
-                @onclick="FilterVse">
-            Vše (@allUkoly.Count)
-        </button>
-        <button class="btn @(currentFilter == "novy" ? "btn-info" : "btn-outline-info")" 
-                @onclick="FilterNovy">
-            Nové (@allUkoly.Count(u => u.Stav == "Nový"))
-        </button>
-        <button class="btn @(currentFilter == "reseni" ? "btn-warning" : "btn-outline-warning")" 
-                @onclick="FilterReseni">
-            V řešení (@allUkoly.Count(u => u.Stav == "V řešení"))
-        </button>
-        <button class="btn @(currentFilter == "hotovy" ? "btn-success" : "btn-outline-success")" 
-                @onclick="FilterHotovy">
-            Hotové (@allUkoly.Count(u => u.Stav == "Hotový"))
-        </button>
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            <strong>Úspěch:</strong> @successMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8 col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> Základní informace
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="newUkol" OnValidSubmit="HandleValidSubmit" FormName="CreateUkolForm">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="popis" class="form-label">
+                                    Popis úkolu <span class="text-danger">*</span>
+                                </label>
+                                <InputText id="popis" 
+                                          class="form-control" 
+                                          @bind-Value="newUkol.Popis" 
+                                          placeholder="Stručný popis úkolu..." />
+                                <ValidationMessage For="@(() => newUkol.Popis)" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="detail" class="form-label">Detail úkolu</label>
+                                <InputTextArea id="detail" 
+                                              class="form-control" 
+                                              rows="4"
+                                              @bind-Value="newUkol.Detail" 
+                                              placeholder="Podrobný popis úkolu, požadavky, poznámky..." />
+                                <ValidationMessage For="@(() => newUkol.Detail)" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="priorita" class="form-label">
+                                    Priorita <span class="text-danger">*</span>
+                                </label>
+                                <InputSelect id="priorita" 
+                                           class="form-select" 
+                                           @bind-Value="newUkol.Priorita">
+                                    <option value="">-- Vyberte prioritu --</option>
+                                    <option value="Nízká">Nízká</option>
+                                    <option value="Střední">Střední</option>
+                                    <option value="Vysoká">Vysoká</option>
+                                    <option value="Kritická">Kritická</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => newUkol.Priorita)" class="text-danger" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="stav" class="form-label">
+                                    Stav <span class="text-danger">*</span>
+                                </label>
+                                <InputSelect id="stav" 
+                                           class="form-select" 
+                                           @bind-Value="newUkol.Stav">
+                                    <option value="">-- Vyberte stav --</option>
+                                    <option value="Nový">Nový</option>
+                                    <option value="V řešení">V řešení</option>
+                                    <option value="Hotový">Hotový</option>
+                                    <option value="Dokončeno">Dokončeno</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => newUkol.Stav)" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firma" class="form-label">Firma</label>
+                                <InputSelect id="firma" 
+                                           class="form-select" 
+                                           @bind-Value="selectedFirmaId"
+                                           @bind-Value:after="OnFirmaChanged">
+                                    <option value="">-- Žádná firma (osobní úkol) --</option>
+                                    @foreach (var firma in firmy)
+                                    {
+                                        <option value="@firma.FirmaId">@firma.Nazev</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="termin" class="form-label">Termín vyřešení</label>
+                                <InputDate id="termin" 
+                                          class="form-control" 
+                                          @bind-Value="terminVyreseni" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="zadavatele" class="form-label">Zadavatelé</label>
+                                <select id="zadavatele" 
+                                       class="form-select" 
+                                       multiple 
+                                       @onchange="OnZadavateleChanged">
+                                    @foreach (var uzivatel in availableUzivatele)
+                                    {
+                                        <option value="@uzivatel.UzivatelId" 
+                                               selected="@selectedZadavatele.Contains(uzivatel.UzivatelId)">
+                                            @uzivatel.Jmeno (@uzivatel.Firma?.Nazev)
+                                        </option>
+                                    }
+                                </select>
+                                <div class="form-text">
+                                    Držte Ctrl (Cmd na Mac) a klikněte pro výběr více zadavatelů
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="resitele" class="form-label">Řešitelé</label>
+                                <select id="resitele" 
+                                       class="form-select" 
+                                       multiple 
+                                       @onchange="OnResiteleChanged">
+                                    @foreach (var uzivatel in availableUzivatele)
+                                    {
+                                        <option value="@uzivatel.UzivatelId" 
+                                               selected="@selectedResitele.Contains(uzivatel.UzivatelId)">
+                                            @uzivatel.Jmeno (@uzivatel.Firma?.Nazev)
+                                        </option>
+                                    }
+                                </select>
+                                <div class="form-text">
+                                    Držte Ctrl (Cmd na Mac) a klikněte pro výběr více řešitelů
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <div class="d-flex gap-2">
+                                <button type="submit" 
+                                       class="btn btn-primary" 
+                                       disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                        <span>Vytváření...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-check-lg me-2"></i>
+                                        <span>Vytvořit úkol</span>
+                                    }
+                                </button>
+                                
+                                <button type="button" 
+                                       class="btn btn-secondary" 
+                                       @onclick="GoBack"
+                                       disabled="@isSubmitting">
+                                    <i class="bi bi-arrow-left me-2"></i>
+                                    Zpět na seznam
+                                </button>
+                                
+                                <button type="button" 
+                                       class="btn btn-outline-secondary" 
+                                       @onclick="ResetForm"
+                                       disabled="@isSubmitting">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>
+                                    Vymazat formulář
+                                </button>
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightbulb"></i> Nápověda
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-primary">Priority úkolů:</h6>
+                        <ul class="list-unstyled">
+                            <li><span class="badge bg-success me-2">Nízká</span>Běžné úkoly bez spěchu</li>
+                            <li><span class="badge bg-warning text-dark me-2">Střední</span>Standardní priorita</li>
+                            <li><span class="badge bg-danger me-2">Vysoká</span>Důležité úkoly</li>
+                            <li><span class="badge bg-dark me-2">Kritická</span>Okamžité řešení</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="text-primary">Stavy úkolů:</h6>
+                        <ul class="list-unstyled">
+                            <li><span class="badge bg-info me-2">Nový</span>Nově vytvořený úkol</li>
+                            <li><span class="badge bg-warning text-dark me-2">V řešení</span>Probíhá práce</li>
+                            <li><span class="badge bg-success me-2">Hotový</span>Čeká na kontrolu</li>
+                            <li><span class="badge bg-secondary me-2">Dokončeno</span>Kompletně uzavřeno</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <small>
+                            <strong>Tip:</strong> Pokud nevyberete firmu, úkol bude označen jako osobní. 
+                            Zadavatele a řešitele můžete přidat i později při editaci úkolu.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-@* Zobrazení stavu načítání *@
-@if (isLoading)
-{
-    <div class="text-center p-4">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Načítání...</span>
-        </div>
-        <p class="mt-2">Načítám úkoly...</p>
-    </div>
-}
-else if (filteredUkoly == null || !filteredUkoly.Any())
-{
-    <div class="alert alert-info" role="alert">
-        <h4 class="alert-heading">Žádné úkoly</h4>
-        <p>Momentálně nejsou k dispozici žádné úkoly pro zobrazení.</p>
-    </div>
-}
-else
-{
-    @* Tabulka s úkoly *@
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Popis</th>
-                    <th>Priorita</th>
-                    <th>Stav</th>
-                    <th>Firma</th>
-                    <th>Zadavatelé</th>
-                    <th>Řešitelé</th>
-                    <th>Datum zadání</th>
-                    <th>Termín</th>
-                    <th>Akce</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var ukol in filteredUkoly)
-                {
-                    <tr class="@GetRowClass(ukol.Stav)">
-                        <td>
-                            <span class="badge bg-secondary">#@ukol.UkolId</span>
-                        </td>
-                        <td>
-                            <strong>@ukol.Popis</strong>
-                            @if (!string.IsNullOrEmpty(ukol.Detail))
-                            {
-                                <br><small class="text-muted">@GetShortDetail(ukol.Detail)</small>
-                            }
-                        </td>
-                        <td>
-                            <span class="badge @GetPriorityBadgeClass(ukol.Priorita)">
-                                @ukol.Priorita
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge @GetStatusBadgeClass(ukol.Stav)">
-                                @ukol.Stav
-                            </span>
-                        </td>
-                        <td>
-                            @if (ukol.Firma != null)
-                            {
-                                <small>@ukol.Firma.Nazev</small>
-                            }
-                            else
-                            {
-                                <small class="text-muted">-</small>
-                            }
-                        </td>
-                        <td>
-                            @if (ukol.Zadatele.Any())
-                            {
-                                @foreach (var zadatel in ukol.Zadatele.Take(2))
-                                {
-                                    <small class="d-block">@zadatel.Uzivatel.Jmeno</small>
-                                }
-                                @if (ukol.Zadatele.Count > 2)
-                                {
-                                    <small class="text-muted">+@(ukol.Zadatele.Count - 2) dalších</small>
-                                }
-                            }
-                            else
-                            {
-                                <small class="text-muted">-</small>
-                            }
-                        </td>
-                        <td>
-                            @if (ukol.Resitele.Any())
-                            {
-                                @foreach (var resitel in ukol.Resitele.Take(2))
-                                {
-                                    <small class="d-block">@resitel.Uzivatel.Jmeno</small>
-                                }
-                                @if (ukol.Resitele.Count > 2)
-                                {
-                                    <small class="text-muted">+@(ukol.Resitele.Count - 2) dalších</small>
-                                }
-                            }
-                            else
-                            {
-                                <small class="text-muted">Nepřiřazeno</small>
-                            }
-                        </td>
-                        <td>
-                            <small>@ukol.DatumZadani.ToString("dd.MM.yyyy")</small>
-                        </td>
-                        <td>
-                            @if (ukol.TerminVyreseni.HasValue)
-                            {
-                                var daysToDeadline = (ukol.TerminVyreseni.Value.Date - DateTime.Today).Days;
-                                <small class="@GetDeadlineClass(daysToDeadline)">
-                                    @ukol.TerminVyreseni.Value.ToString("dd.MM.yyyy")
-                                    @if (daysToDeadline < 0)
-                                    {
-                                        <br><span class="text-danger">(po termínu)</span>
-                                    }
-                                    else if (daysToDeadline <= 3)
-                                    {
-                                        <br><span class="text-warning">(za @daysToDeadline dní)</span>
-                                    }
-                                </small>
-                            }
-                            else
-                            {
-                                <small class="text-muted">-</small>
-                            }
-                        </td>
-                        <td>
-                            <div class="btn-group-vertical btn-group-sm" role="group">
-                                <button class="btn btn-outline-primary btn-sm" 
-                                        @onclick="@(() => ViewDetail(ukol.UkolId))">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-outline-secondary btn-sm" 
-                                        @onclick="@(() => EditUkol(ukol.UkolId))">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
-
 @code {
-    // Proměnné pro stav komponenty
-    private List<Ukol> allUkoly = new();         // Všechny úkoly z databáze
-    private List<Ukol> filteredUkoly = new();    // Filtrované úkoly pro zobrazení
-    private bool isLoading = true;               // Indikuje, zda se data načítají
-    private string currentFilter = "vse";        // Aktuálně aktivní filtr
+    private Ukol newUkol = new();
+    private List<Firma> firmy = new();
+    private List<Uzivatel> availableUzivatele = new();
+    private List<int> selectedZadavatele = new();
+    private List<int> selectedResitele = new();
+    private string? selectedFirmaId = "";
+    private DateTime? terminVyreseni;
+    private bool isSubmitting = false;
+    private string errorMessage = "";
+    private string successMessage = "";
 
-    // Lifecycle metoda - spustí se při načtení komponenty
     protected override async Task OnInitializedAsync()
     {
-        await LoadUkolyAsync();
+        await LoadDataAsync();
+        InitializeForm();
     }
 
-    // Načte všechny úkoly z databáze
-    private async Task LoadUkolyAsync()
+    private async Task LoadDataAsync()
     {
-        isLoading = true;
         try
         {
-            allUkoly = await UkolService.GetAllUkolyAsync();
-            FilterByStatus(currentFilter); // Aplikuje aktuální filtr
+            firmy = await UkolService.GetAllFirmyAsync();
+            availableUzivatele = await UkolService.GetAllUzivateleAsync();
         }
         catch (Exception ex)
         {
-            // V produkční aplikaci byste logovali chybu
-            Console.WriteLine($"Chyba při načítání úkolů: {ex.Message}");
-            allUkoly = new List<Ukol>();
+            errorMessage = $"Chyba při načítání dat: {ex.Message}";
+        }
+    }
+
+    private void InitializeForm()
+    {
+        newUkol = new Ukol
+        {
+            Popis = "",
+            Detail = "",
+            Priorita = "Střední",  // Výchozí priorita
+            Stav = "Nový",         // Výchozí stav
+            VlozilUzivatelId = 1   // TODO: Získat z autentifikace
+        };
+        
+        selectedFirmaId = "";
+        terminVyreseni = null;
+        selectedZadavatele.Clear();
+        selectedResitele.Clear();
+        errorMessage = "";
+        successMessage = "";
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (isSubmitting) return;
+        
+        isSubmitting = true;
+        errorMessage = "";
+        successMessage = "";
+
+        try
+        {
+            // Nastavení FirmaId
+            if (!string.IsNullOrEmpty(selectedFirmaId) && int.TryParse(selectedFirmaId, out int firmaId))
+            {
+                newUkol.FirmaId = firmaId;
+            }
+            else
+            {
+                newUkol.FirmaId = null;
+            }
+
+            // Nastavení termínu
+            newUkol.TerminVyreseni = terminVyreseni;
+
+            // Vytvoření úkolu
+            var createdUkol = await UkolService.CreateUkolAsync(newUkol);
+
+            // Přidání zadavatelů
+            foreach (var zadatelId in selectedZadavatele)
+            {
+                var zadatel = new Zadatel
+                {
+                    UkolId = createdUkol.UkolId,
+                    UzivatelId = zadatelId
+                };
+                createdUkol.Zadatele.Add(zadatel);
+            }
+
+            // Přidání řešitelů
+            foreach (var resitelId in selectedResitele)
+            {
+                var resitel = new Resitel
+                {
+                    UkolId = createdUkol.UkolId,
+                    UzivatelId = resitelId
+                };
+                createdUkol.Resitele.Add(resitel);
+            }
+
+            successMessage = $"Úkol '{createdUkol.Popis}' byl úspěšně vytvořen!";
+            
+            // Vyčištění formuláře pro další úkol
+            await Task.Delay(1500); // Krátké zobrazení zprávy
+            InitializeForm();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Chyba při vytváření úkolu: {ex.Message}";
         }
         finally
         {
-            isLoading = false;
+            isSubmitting = false;
         }
     }
 
-    // Metody pro filtrování - každá pro jeden stav
-    private void FilterVse() => FilterByStatus("vse");
-    private void FilterNovy() => FilterByStatus("novy");
-    private void FilterReseni() => FilterByStatus("reseni");
-    private void FilterHotovy() => FilterByStatus("hotovy");
-
-    // Filtruje úkoly podle stavu
-    private void FilterByStatus(string filter)
+    private void OnFirmaChanged()
     {
-        currentFilter = filter;
-        
-        filteredUkoly = filter switch
+        // Můžeme zde implementovat logiku pro filtrování uživatelů podle firmy
+        StateHasChanged();
+    }
+
+    private void OnZadavateleChanged(ChangeEventArgs e)
+    {
+        selectedZadavatele.Clear();
+        if (e.Value is string[] values)
         {
-            "novy" => allUkoly.Where(u => u.Stav == "Nový").ToList(),
-            "reseni" => allUkoly.Where(u => u.Stav == "V řešení").ToList(),
-            "hotovy" => allUkoly.Where(u => u.Stav == "Hotový").ToList(),
-            _ => allUkoly.ToList() // "vse" nebo jakýkoliv jiný filtr
-        };
+            foreach (var value in values)
+            {
+                if (int.TryParse(value, out int id))
+                {
+                    selectedZadavatele.Add(id);
+                }
+            }
+        }
     }
 
-    // Pomocné metody pro CSS třídy a styling
-    private string GetRowClass(string stav)
+    private void OnResiteleChanged(ChangeEventArgs e)
     {
-        return stav switch
+        selectedResitele.Clear();
+        if (e.Value is string[] values)
         {
-            "Hotový" => "table-success",
-            "V řešení" => "table-warning",
-            "Nový" => "table-info",
-            _ => ""
-        };
+            foreach (var value in values)
+            {
+                if (int.TryParse(value, out int id))
+                {
+                    selectedResitele.Add(id);
+                }
+            }
+        }
     }
 
-    private string GetStatusBadgeClass(string stav)
+    private void GoBack()
     {
-        return stav switch
-        {
-            "Hotový" => "bg-success",
-            "V řešení" => "bg-warning text-dark",
-            "Nový" => "bg-info",
-            _ => "bg-secondary"
-        };
+        Navigation.NavigateTo("/");
     }
 
-    private string GetPriorityBadgeClass(string priorita)
+    private void ResetForm()
     {
-        return priorita switch
-        {
-            "Vysoká" => "bg-danger",
-            "Střední" => "bg-warning text-dark",
-            "Nízká" => "bg-success",
-            _ => "bg-secondary"
-        };
-    }
-
-    private string GetDeadlineClass(int daysToDeadline)
-    {
-        if (daysToDeadline < 0) return "text-danger";
-        if (daysToDeadline <= 3) return "text-warning";
-        return "text-success";
-    }
-
-    // Zkrátí detail úkolu pro zobrazení v tabulce
-    private string GetShortDetail(string detail)
-    {
-        const int maxLength = 50;
-        if (detail.Length <= maxLength) return detail;
-        return detail.Substring(0, maxLength) + "...";
-    }
-
-    // Event handlery pro tlačítka (zatím jen placeholder funkce)
-    private void ViewDetail(int ukolId)
-    {
-        // TODO: Implementovat navigaci na detail úkolu
-        Console.WriteLine($"Zobrazit detail úkolu {ukolId}");
-    }
-
-    private void EditUkol(int ukolId)
-    {
-        // TODO: Implementovat editaci úkolu
-        Console.WriteLine($"Editovat úkol {ukolId}");
-    }
-
-    void GoToUkolNew()
-    {
-        Navigation.NavigateTo("/UkolNew"); // cesta podle route v UkolNew.razor
+        InitializeForm();
+        StateHasChanged();
     }
 }
