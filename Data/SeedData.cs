@@ -149,7 +149,7 @@ namespace TaskForge.Data
                 },
                 new Ukol
                 {
-                    FirmaId = firmy[3].FirmaId, // Osobní úkol
+                    FirmaId = firmy[2].FirmaId, // Osobní úkol
                     Popis = "Aktualizace dokumentace API",
                     Detail = "Aktualizovat Swagger dokumentaci pro všechny API endpointy a přidat příklady použití.",
                     DatumZadani = DateTime.Now.AddDays(-1),
