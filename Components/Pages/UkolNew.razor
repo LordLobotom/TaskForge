@@ -31,7 +31,7 @@
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bi bi-exclamation-triangle"></i>
             <strong>Chyba:</strong> @errorMessage
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" @onclick="() => errorMessage = string.Empty"></button>
         </div>
     }
 
@@ -40,7 +40,7 @@
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="bi bi-check-circle"></i>
             <strong>Úspěch:</strong> @successMessage
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" @onclick="() => successMessage = string.Empty"></button>
         </div>
     }
 
@@ -53,18 +53,19 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <EditForm Model="newUkol" OnValidSubmit="HandleValidSubmit" FormName="CreateUkolForm">
+                    <EditForm Model="newUkol" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
-                        
+                        <ValidationSummary class="text-danger" />
+
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label for="popis" class="form-label">
                                     Popis úkolu <span class="text-danger">*</span>
                                 </label>
                                 <InputText id="popis" 
-                                          class="form-control" 
-                                          @bind-Value="newUkol.Popis" 
-                                          placeholder="Stručný popis úkolu..." />
+                                           class="form-control" 
+                                           @bind-Value="newUkol.Popis" 
+                                           placeholder="Stručný popis úkolu..." />
                                 <ValidationMessage For="@(() => newUkol.Popis)" class="text-danger" />
                             </div>
                         </div>
@@ -73,11 +74,10 @@
                             <div class="col-md-12 mb-3">
                                 <label for="detail" class="form-label">Detail úkolu</label>
                                 <InputTextArea id="detail" 
-                                              class="form-control" 
-                                              rows="4"
-                                              @bind-Value="newUkol.Detail" 
-                                              placeholder="Podrobný popis úkolu, požadavky, poznámky..." />
-                                <ValidationMessage For="@(() => newUkol.Detail)" class="text-danger" />
+                                               class="form-control" 
+                                               rows="4"
+                                               @bind-Value="newUkol.Detail" 
+                                               placeholder="Podrobný popis úkolu, požadavky, poznámky..." />
                             </div>
                         </div>
 
@@ -87,8 +87,8 @@
                                     Priorita <span class="text-danger">*</span>
                                 </label>
                                 <InputSelect id="priorita" 
-                                           class="form-select" 
-                                           @bind-Value="newUkol.Priorita">
+                                             class="form-select" 
+                                             @bind-Value="newUkol.Priorita">
                                     <option value="">-- Vyberte prioritu --</option>
                                     <option value="Nízká">Nízká</option>
                                     <option value="Střední">Střední</option>
@@ -103,8 +103,8 @@
                                     Stav <span class="text-danger">*</span>
                                 </label>
                                 <InputSelect id="stav" 
-                                           class="form-select" 
-                                           @bind-Value="newUkol.Stav">
+                                             class="form-select" 
+                                             @bind-Value="newUkol.Stav">
                                     <option value="">-- Vyberte stav --</option>
                                     <option value="Nový">Nový</option>
                                     <option value="V řešení">V řešení</option>
@@ -121,22 +121,22 @@
                                     Firma <span class="text-danger">*</span>
                                 </label>
                                 <InputSelect id="firma" 
-                                           class="form-select" 
-                                           @bind-Value="selectedFirmaId"
-                                           @bind-Value:after="OnFirmaChanged">
+                                            class="form-select" 
+                                            @bind-Value="selectedFirmaId">
                                     <option value="">-- Vyberte firmu --</option>
                                     @foreach (var firma in firmy)
                                     {
                                         <option value="@firma.FirmaId">@firma.Nazev</option>
                                     }
                                 </InputSelect>
+                                <ValidationMessage For="@(() => newUkol.FirmaId)" class="text-danger" />
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label for="termin" class="form-label">Termín vyřešení</label>
                                 <InputDate id="termin" 
-                                          class="form-control" 
-                                          @bind-Value="terminVyreseni" />
+                                           class="form-control" 
+                                           @bind-Value="newUkol.TerminVyreseni" />
                             </div>
                         </div>
 
@@ -144,13 +144,13 @@
                             <div class="col-md-6 mb-3">
                                 <label for="zadavatele" class="form-label">Zadavatelé</label>
                                 <select id="zadavatele" 
-                                       class="form-select" 
-                                       multiple 
-                                       @onchange="OnZadavateleChanged">
+                                        class="form-select" 
+                                        multiple 
+                                        @onchange="OnZadavateleChanged">
                                     @foreach (var uzivatel in availableUzivatele)
                                     {
                                         <option value="@uzivatel.UzivatelId" 
-                                               selected="@selectedZadavatele.Contains(uzivatel.UzivatelId)">
+                                                selected="@selectedZadavatele.Contains(uzivatel.UzivatelId)">
                                             @uzivatel.Jmeno (@uzivatel.Firma?.Nazev)
                                         </option>
                                     }
@@ -163,13 +163,13 @@
                             <div class="col-md-6 mb-3">
                                 <label for="resitele" class="form-label">Řešitelé</label>
                                 <select id="resitele" 
-                                       class="form-select" 
-                                       multiple 
-                                       @onchange="OnResiteleChanged">
+                                        class="form-select" 
+                                        multiple 
+                                        @onchange="OnResiteleChanged">
                                     @foreach (var uzivatel in availableUzivatele)
                                     {
                                         <option value="@uzivatel.UzivatelId" 
-                                               selected="@selectedResitele.Contains(uzivatel.UzivatelId)">
+                                                selected="@selectedResitele.Contains(uzivatel.UzivatelId)">
                                             @uzivatel.Jmeno (@uzivatel.Firma?.Nazev)
                                         </option>
                                     }
@@ -183,8 +183,8 @@
                         <div class="mt-4">
                             <div class="d-flex gap-2">
                                 <button type="submit" 
-                                       class="btn btn-primary" 
-                                       disabled="@isSubmitting">
+                                        class="btn btn-primary" 
+                                        disabled="@isSubmitting">
                                     @if (isSubmitting)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
@@ -196,19 +196,19 @@
                                         <span>Vytvořit úkol</span>
                                     }
                                 </button>
-                                
+
                                 <button type="button" 
-                                       class="btn btn-secondary" 
-                                       @onclick="GoBack"
-                                       disabled="@isSubmitting">
+                                        class="btn btn-secondary" 
+                                        @onclick="GoBack"
+                                        disabled="@isSubmitting">
                                     <i class="bi bi-arrow-left me-2"></i>
                                     Zpět na seznam
                                 </button>
-                                
+
                                 <button type="button" 
-                                       class="btn btn-outline-secondary" 
-                                       @onclick="ResetForm"
-                                       disabled="@isSubmitting">
+                                        class="btn btn-outline-secondary" 
+                                        @onclick="ResetForm"
+                                        disabled="@isSubmitting">
                                     <i class="bi bi-arrow-clockwise me-2"></i>
                                     Vymazat formulář
                                 </button>
@@ -228,30 +228,14 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6 class="text-primary">Priority úkolů:</h6>
-                        <ul class="list-unstyled">
-                            <li><span class="badge bg-success me-2">Nízká</span>Běžné úkoly bez spěchu</li>
-                            <li><span class="badge bg-warning text-dark me-2">Střední</span>Standardní priorita</li>
-                            <li><span class="badge bg-danger me-2">Vysoká</span>Důležité úkoly</li>
-                            <li><span class="badge bg-dark me-2">Kritická</span>Okamžité řešení</li>
+                        <strong>Tipy pro vyplnění úkolu:</strong>
+                        <ul>
+                            <li>Popis by měl být stručný a výstižný.</li>
+                            <li>Detail obsahuje všechny potřebné informace a odkazy.</li>
+                            <li>Vyberte správnou prioritu, aby byl úkol řešen včas.</li>
+                            <li>Přiřaďte řešitele a zadavatele podle odpovědnosti.</li>
+                            <li>Termín vyřešení je doporučený, ale může být aktualizován.</li>
                         </ul>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h6 class="text-primary">Stavy úkolů:</h6>
-                        <ul class="list-unstyled">
-                            <li><span class="badge bg-info me-2">Nový</span>Nově vytvořený úkol</li>
-                            <li><span class="badge bg-warning text-dark me-2">V řešení</span>Probíhá práce</li>
-                            <li><span class="badge bg-success me-2">Hotový</span>Čeká na kontrolu</li>
-                            <li><span class="badge bg-secondary me-2">Dokončeno</span>Kompletně uzavřeno</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="alert alert-info">
-                        <small>
-                            <strong>Tip:</strong> Pokud nevyberete firmu, úkol bude označen jako osobní. 
-                            Zadavatele a řešitele můžete přidat i později při editaci úkolu.
-                        </small>
                     </div>
                 </div>
             </div>
@@ -260,119 +244,94 @@
 </div>
 
 @code {
-    private Ukol newUkol = new();
+    private Ukol newUkol = new Ukol();
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+    private string selectedFirmaId = string.Empty;
     private List<Firma> firmy = new();
     private List<Uzivatel> availableUzivatele = new();
     private List<int> selectedZadavatele = new();
     private List<int> selectedResitele = new();
-    private string? selectedFirmaId = "";
-    private DateTime? terminVyreseni;
-    private bool isSubmitting = false;
-    private string errorMessage = "";
-    private string successMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadDataAsync();
-        InitializeForm();
+        firmy = await UkolService.GetAllFirmyAsync();
+        availableUzivatele = await UkolService.GetAllUzivateleAsync();
     }
 
-    private async Task LoadDataAsync()
+    private void OnZadavateleChanged(ChangeEventArgs e)
     {
-        try
+        if (e.Value is string[] selectedValues && selectedValues.Length > 0)
         {
-            firmy = await UkolService.GetAllFirmyAsync();
-            availableUzivatele = await UkolService.GetAllUzivateleAsync();
+            selectedZadavatele = selectedValues.Select(int.Parse).ToList();
         }
-        catch (Exception ex)
+        else
         {
-            errorMessage = $"Chyba při načítání dat: {ex.Message}";
+            selectedZadavatele = new List<int>();
         }
     }
 
-    private void InitializeForm()
+    private void OnResiteleChanged(ChangeEventArgs e)
     {
-        newUkol = new Ukol
+        if (e.Value is string[] selectedValues && selectedValues.Length > 0)
         {
-            Popis = "",
-            Detail = "",
-            Priorita = "Střední",  // Výchozí priorita
-            Stav = "Nový",         // Výchozí stav
-            VlozilUzivatelId = 1   // TODO: Získat z autentifikace
-        };
-        
-        selectedFirmaId = "";
-        terminVyreseni = null;
-        selectedZadavatele.Clear();
-        selectedResitele.Clear();
-        errorMessage = "";
-        successMessage = "";
+            selectedResitele = selectedValues.Select(int.Parse).ToList();
+        }
+        else
+        {
+            selectedResitele = new List<int>();
+        }
     }
 
     private async Task HandleValidSubmit()
     {
-        if (isSubmitting) return;
-        
         isSubmitting = true;
-        errorMessage = "";
-        successMessage = "";
-
         try
         {
-            // Validace firmy
-            if (string.IsNullOrEmpty(selectedFirmaId))
-            {
-                errorMessage = "Firma je povinná.";
-                return;
-            }
-            // Nastavení FirmaId
-            if (!string.IsNullOrEmpty(selectedFirmaId) && int.TryParse(selectedFirmaId, out int firmaId))
+            // Convert selected firma ID
+            if (int.TryParse(selectedFirmaId, out int firmaId))
             {
                 newUkol.FirmaId = firmaId;
             }
             else
             {
-                newUkol.FirmaId = null;
+                errorMessage = "Prosím vyberte firmu.";
+                isSubmitting = false;
+                return;
             }
 
-            // Nastavení termínu
-            newUkol.TerminVyreseni = terminVyreseni;
-
-            // Vytvoření úkolu
-            var createdUkol = await UkolService.CreateUkolAsync(newUkol);
-
-            // Přidání zadavatelů
-            foreach (var zadatelId in selectedZadavatele)
+            // Create the Resitele relationships
+            newUkol.Resitele = selectedResitele.Select(resitelId => new Resitel
             {
-                var zadatel = new Zadatel
-                {
-                    UkolId = createdUkol.UkolId,
-                    UzivatelId = zadatelId
-                };
-                createdUkol.Zadatele.Add(zadatel);
-            }
+                UzivatelId = resitelId
+            }).ToList();
 
-            // Přidání řešitelů
-            foreach (var resitelId in selectedResitele)
+            // Create the Zadatele relationships
+            newUkol.Zadatele = selectedZadavatele.Select(zadatelId => new Zadatel
             {
-                var resitel = new Resitel
-                {
-                    UkolId = createdUkol.UkolId,
-                    UzivatelId = resitelId
-                };
-                createdUkol.Resitele.Add(resitel);
+                UzivatelId = zadatelId
+            }).ToList();
+
+            // Temporary fix: Set to the first available user ID
+            if (availableUzivatele.Any())
+            {
+                newUkol.VlozilUzivatelId = availableUzivatele.First().UzivatelId;
+            }
+            else
+            {
+                errorMessage = "Nejsou k dispozici žádní uživatelé.";
+                isSubmitting = false;
+                return;
             }
 
-            successMessage = $"Úkol '{createdUkol.Popis}' byl úspěšně vytvořen!";
-            
-            // Vyčištění formuláře pro další úkol
-            await Task.Delay(1500); // Krátké zobrazení zprávy
-            InitializeForm();
-            StateHasChanged();
+            await UkolService.CreateUkolAsync(newUkol);
+            successMessage = "Úkol byl úspěšně vytvořen.";
+            ResetForm();
         }
         catch (Exception ex)
         {
-            errorMessage = $"Chyba při vytváření úkolu: {ex.Message}";
+            errorMessage = $"Nepodařilo se vytvořit úkol: {ex.Message}";
         }
         finally
         {
@@ -380,50 +339,16 @@
         }
     }
 
-    private void OnFirmaChanged()
+    private void ResetForm()
     {
-        // Můžeme zde implementovat logiku pro filtrování uživatelů podle firmy
-        StateHasChanged();
-    }
-
-    private void OnZadavateleChanged(ChangeEventArgs e)
-    {
+        newUkol = new Ukol();
         selectedZadavatele.Clear();
-        if (e.Value is string[] values)
-        {
-            foreach (var value in values)
-            {
-                if (int.TryParse(value, out int id))
-                {
-                    selectedZadavatele.Add(id);
-                }
-            }
-        }
-    }
-
-    private void OnResiteleChanged(ChangeEventArgs e)
-    {
         selectedResitele.Clear();
-        if (e.Value is string[] values)
-        {
-            foreach (var value in values)
-            {
-                if (int.TryParse(value, out int id))
-                {
-                    selectedResitele.Add(id);
-                }
-            }
-        }
+        selectedFirmaId = string.Empty;
     }
 
     private void GoBack()
     {
-        Navigation.NavigateTo("/");
-    }
-
-    private void ResetForm()
-    {
-        InitializeForm();
-        StateHasChanged();
+        Navigation.NavigateTo("/ukoly");
     }
 }

@@ -9,10 +9,8 @@ namespace TaskForge.Services
         Task<List<Ukol>> GetAllUkolyAsync();
         Task<Ukol?> GetUkolByIdAsync(int id);
         Task<Ukol> CreateUkolAsync(Ukol ukol);
+        Task<Ukol> CreateUkolWithRelationsAsync(Ukol ukol, List<int> zadavateleIds, List<int> resiteleIds);
         Task<Ukol> UpdateUkolAsync(Ukol ukol);
-        //Task DeleteUkolAsync(int id);
-        //Task<List<Ukol>> GetUkolyByStavAsync(string stav);
-        //Task<List<Ukol>> GetUkolyByPrioritaAsync(string priorita);
         Task<List<Uzivatel>> GetAllUzivateleAsync();
         Task<List<Firma>> GetAllFirmyAsync();
     }
@@ -74,6 +72,48 @@ namespace TaskForge.Services
             
             // Přidání úkolu do databáze
             _context.Ukoly.Add(ukol);
+            await _context.SaveChangesAsync();
+            
+            // Vrácení úkolu s načtenými daty
+            return await GetUkolByIdAsync(ukol.UkolId) ?? ukol;
+        }
+
+        /// <summary>
+        /// Vytvoří nový úkol včetně zadavatelů a řešitelů
+        /// </summary>
+        public async Task<Ukol> CreateUkolWithRelationsAsync(Ukol ukol, List<int> zadavateleIds, List<int> resiteleIds)
+        {
+            // Nastavení základních hodnot
+            ukol.DatumZadani = DateTime.Now;
+            ukol.VlozenDatum = DateTime.Now;
+            
+            // Přidání úkolu do databáze
+            _context.Ukoly.Add(ukol);
+            await _context.SaveChangesAsync();
+            
+            // Přidání zadavatelů
+            foreach (var zadatelId in zadavateleIds)
+            {
+                var zadatel = new Zadatel
+                {
+                    UkolId = ukol.UkolId,
+                    UzivatelId = zadatelId
+                };
+                _context.Zadatele.Add(zadatel);
+            }
+            
+            // Přidání řešitelů
+            foreach (var resitelId in resiteleIds)
+            {
+                var resitel = new Resitel
+                {
+                    UkolId = ukol.UkolId,
+                    UzivatelId = resitelId
+                };
+                _context.Resitele.Add(resitel);
+            }
+            
+            // Uložení relací
             await _context.SaveChangesAsync();
             
             // Vrácení úkolu s načtenými daty
