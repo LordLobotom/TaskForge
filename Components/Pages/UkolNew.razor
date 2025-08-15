@@ -117,12 +117,14 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="firma" class="form-label">Firma</label>
+                                <label for="firma" class="form-label">
+                                    Firma <span class="text-danger">*</span>
+                                </label>
                                 <InputSelect id="firma" 
                                            class="form-select" 
                                            @bind-Value="selectedFirmaId"
                                            @bind-Value:after="OnFirmaChanged">
-                                    <option value="">-- Žádná firma (osobní úkol) --</option>
+                                    <option value="">-- Vyberte firmu --</option>
                                     @foreach (var firma in firmy)
                                     {
                                         <option value="@firma.FirmaId">@firma.Nazev</option>
@@ -317,6 +319,12 @@
 
         try
         {
+            // Validace firmy
+            if (string.IsNullOrEmpty(selectedFirmaId))
+            {
+                errorMessage = "Firma je povinná.";
+                return;
+            }
             // Nastavení FirmaId
             if (!string.IsNullOrEmpty(selectedFirmaId) && int.TryParse(selectedFirmaId, out int firmaId))
             {

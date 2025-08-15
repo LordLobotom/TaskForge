@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TaskForge.Models
 {
     public class Ukol
@@ -15,7 +17,7 @@ namespace TaskForge.Models
         public Uzivatel VlozilUzivatel { get; set; } = null!;
         public DateTime VlozenDatum { get; set; } = DateTime.Now;
 
-
+        [Required(ErrorMessage = "Firma je povinná")]
         public Firma? Firma { get; set; }
         public List<Resitel> Resitele { get; set; } = new();
         public List<Zadatel> Zadatele { get; set; } = new();
