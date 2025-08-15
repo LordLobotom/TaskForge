@@ -8,11 +8,13 @@ namespace TaskForge.Services
     {
         Task<List<Ukol>> GetAllUkolyAsync();
         Task<Ukol?> GetUkolByIdAsync(int id);
-        //Task<Ukol> CreateUkolAsync(Ukol ukol);
-        //Task<Ukol> UpdateUkolAsync(Ukol ukol);
+        Task<Ukol> CreateUkolAsync(Ukol ukol);
+        Task<Ukol> UpdateUkolAsync(Ukol ukol);
         //Task DeleteUkolAsync(int id);
         //Task<List<Ukol>> GetUkolyByStavAsync(string stav);
         //Task<List<Ukol>> GetUkolyByPrioritaAsync(string priorita);
+        Task<List<Uzivatel>> GetAllUzivateleAsync();
+        Task<List<Firma>> GetAllFirmyAsync();
     }
       
     public class UkolService : IUkolService
@@ -59,6 +61,54 @@ namespace TaskForge.Services
                 .Include(u => u.ChatZpravy)
                     .ThenInclude(cz => cz.Uzivatel)
                 .FirstOrDefaultAsync(u => u.UkolId == id);
+        }
+
+        /// <summary>
+        /// Vytvoří nový úkol
+        /// </summary>
+        public async Task<Ukol> CreateUkolAsync(Ukol ukol)
+        {
+            // Nastavení základních hodnot
+            ukol.DatumZadani = DateTime.Now;
+            ukol.VlozenDatum = DateTime.Now;
+            
+            // Přidání úkolu do databáze
+            _context.Ukoly.Add(ukol);
+            await _context.SaveChangesAsync();
+            
+            // Vrácení úkolu s načtenými daty
+            return await GetUkolByIdAsync(ukol.UkolId) ?? ukol;
+        }
+
+        /// <summary>
+        /// Aktualizuje existující úkol
+        /// </summary>
+        public async Task<Ukol> UpdateUkolAsync(Ukol ukol)
+        {
+            _context.Entry(ukol).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return await GetUkolByIdAsync(ukol.UkolId) ?? ukol;
+        }
+
+        /// <summary>
+        /// Získá všechny uživatele pro výběr v formulářích
+        /// </summary>
+        public async Task<List<Uzivatel>> GetAllUzivateleAsync()
+        {
+            return await _context.Uzivatele
+                .Include(u => u.Firma)
+                .OrderBy(u => u.Jmeno)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Získá všechny firmy pro výběr v formulářích
+        /// </summary>
+        public async Task<List<Firma>> GetAllFirmyAsync()
+        {
+            return await _context.Firmy
+                .OrderBy(f => f.Nazev)
+                .ToListAsync();
         }
     }
 }
